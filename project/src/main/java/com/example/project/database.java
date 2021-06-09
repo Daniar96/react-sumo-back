@@ -28,23 +28,23 @@ public class database {
             "type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope) AS data " +
             "FROM project.output " +
             "WHERE out.timestep = timestep) car " +
-            "WHERE timestep >= ? " +
-            "AND timestep <= ?" +
-            "AND simulationid = 1 " +
+            "WHERE simulationid = ? " +
+            "AND timestep >= ? " +
+            "AND timestep <= ? " +
             "GROUP BY timestep ) as ultimateData ";
 
     static String getAllNodes =
             "SELECT to_jsonb(array_agg(nodes.data)) " +
                     "FROM project.node, " +
                     "LATERAL ( SELECT jsonb_build_object('id', node_id, 'lon', x, 'lat', y) AS data) nodes " +
-                    "WHERE simulationid = 1 ";
+                    "WHERE simulationid = ? ";
     static String getAlledges ="" +
             "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('id', edge_id, 'start', start, 'finish', finish, " +
                     "'geometry', string_to_array(shape, ' ')) as line " +
                     "FROM project.edges " +
-                    "WHERE simulationid = 1 " +
+                    "WHERE simulationid = ? " +
                     "ORDER BY edge_id ) as ultimateData ";
 
 
@@ -53,23 +53,23 @@ public class database {
     @GET
     @Produces("application/json")
     public String simulations() {
-
         try {
-            return getFromDatabase(getSimulations);
+            return getFromDatabasePrepared(getSimulations, new int[0]);
         } catch (SQLException e) {
             return "{}";
         }
     }
 
     @GET
-    @Path("time/{from}/{to}")
+    @Path("time/{simulation_id}/{from}/{to}")
     @Produces("application/json")
-    public String timeStep(@PathParam("from") int from, @PathParam("to") int to) {
+    public String timeStep(@PathParam("simulation_id") int id, @PathParam("from") int from, @PathParam("to") int to) {
 
         try {
-            String[] arr = new String[2];
-            arr[0] = String.valueOf(from);
-            arr[1] = String.valueOf(to);
+            int[] arr = new int[3];
+            arr[0] = id;
+            arr[1] = from;
+            arr[2] = to;
             return getFromDatabasePrepared(getTimeStemp, arr);
         } catch (SQLException e) {
             return "{}";
@@ -77,36 +77,41 @@ public class database {
     }
 
 
-    @Path("nodes")
+    @Path("nodes/{simulation_id}")
     @GET
     @Produces("application/json")
-    public String nodes() {
+    public String nodes(@PathParam("simulation_id") int id) {
+        int[] arr = new int[1];
+        arr[0] = id;
         try {
-            return getFromDatabase(getAllNodes);
+            return getFromDatabasePrepared(getAllNodes, arr);
         } catch (SQLException e) {
             return "{}";
         }
     }
 
-    @Path("edges")
+    @Path("edges/{simulation_id}")
     @GET
     @Produces("application/json")
-    public String edges() {
+    public String edges(@PathParam("simulation_id") int id) {
+        int[] arr = new int[1];
+        arr[0] = id;
         try {
-            return getFromDatabase(getAlledges);
+            return getFromDatabasePrepared(getAlledges, arr);
         } catch (SQLException e) {
             return "{}";
         }
     }
 
 
-    public String getFromDatabasePrepared(String Query, String[] param) throws SQLException {
+    public String getFromDatabasePrepared(String Query, int[] param) throws SQLException {
         Connection database = connectToDB();
         ResultSet fin;
         try {
             PreparedStatement pr = database.prepareStatement(Query);
             for (int i = 0; i < param.length; i++) {
-                pr.setString(i+1, param[i]);
+                System.out.println(param[i]);
+                pr.setInt(i+1, param[i]);
             }
             fin = pr.executeQuery();
 
