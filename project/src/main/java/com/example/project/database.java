@@ -4,11 +4,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 
 @Path("/database")
@@ -19,10 +15,11 @@ public class database {
 
     static String getSimulations =
             "SELECT to_jsonb(array_agg(jsonobj.simdata)) " +
-                    "FROM project.simulation s, " +
-                    "LATERAL (SELECT json_build_object('id', s.simulationid, 'name', s.name, 'date', s.uploaddate, 'description', " +
-                    "s.description, 'steps', count(distinct o.timestep)) simdata from project.output o " +
-                    "where o.simulationid = s.simulationid) jsonobj; ";
+            "FROM project.simulation s, " +
+            "LATERAL (SELECT json_build_object('id', s.simulationid, 'name', s.name, 'date', s.uploaddate, 'description', " +
+             "s.description, 'steps', count(distinct o.timestep)) simdata from project.output o " +
+            "where o.simulationid = s.simulationid) jsonobj; ";
+
     static String getTimeStemp = "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('timestamp', timestep, 'vehicles', array_agg(car.data)) as line " +
@@ -31,8 +28,8 @@ public class database {
             "type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope) AS data " +
             "FROM project.output " +
             "WHERE out.timestep = timestep) car " +
-            "WHERE timestep >= %s " +
-            "AND timestep <= %s " +
+            "WHERE timestep >= ? " +
+            "AND timestep <= ?" +
             "AND simulationid = 1 " +
             "GROUP BY timestep ) as ultimateData ";
 
@@ -40,17 +37,15 @@ public class database {
             "SELECT to_jsonb(array_agg(nodes.data)) " +
                     "FROM project.node, " +
                     "LATERAL ( SELECT jsonb_build_object('id', node_id, 'lon', x, 'lat', y) AS data) nodes " +
-                    "WHERE simulationid = 1 " +
-                    "LIMIT 2000";
-
+                    "WHERE simulationid = 1 ";
     static String getAlledges ="" +
             "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('id', edge_id, 'start', start, 'finish', finish, " +
-            "'geometry', string_to_array(shape, ' ')) as line " +
-            "FROM project.edges " +
-            "WHERE simulationid = 1 " +
-            "ORDER BY edge_id ) as ultimateData ";
+                    "'geometry', string_to_array(shape, ' ')) as line " +
+                    "FROM project.edges " +
+                    "WHERE simulationid = 1 " +
+                    "ORDER BY edge_id ) as ultimateData ";
 
 
 
@@ -71,10 +66,11 @@ public class database {
     @Produces("application/json")
     public String timeStep(@PathParam("from") int from, @PathParam("to") int to) {
 
-        String test = "From: " + from + ". To: " + to ;
-        System.out.println(test);
         try {
-            return getFromDatabase(String.format(getTimeStemp, from, to));
+            String[] arr = new String[2];
+            arr[0] = String.valueOf(from);
+            arr[1] = String.valueOf(to);
+            return getFromDatabasePrepared(getTimeStemp, arr);
         } catch (SQLException e) {
             return "{}";
         }
@@ -104,6 +100,31 @@ public class database {
     }
 
 
+    public String getFromDatabasePrepared(String Query, String[] param) throws SQLException {
+        Connection database = connectToDB();
+        ResultSet fin;
+        try {
+            PreparedStatement pr = database.prepareStatement(Query);
+            for (int i = 0; i < param.length; i++) {
+                pr.setString(i+1, param[i]);
+            }
+            fin = pr.executeQuery();
+
+        } catch (SQLException e) {
+            System.out.println("the given query was wrong!");
+            e.printStackTrace();
+            return null;
+        } catch (NullPointerException e) {
+            System.out.println("Could not connect to database properly");
+            return null;
+        }
+
+        if(fin.next()) {
+            return fin.getString(1);
+        } else {
+            return "{}";
+        }
+    }
 
     public String getFromDatabase(String query) throws SQLException {
         Connection database = connectToDB();
