@@ -1,9 +1,6 @@
 package com.example.project;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import java.sql.*;
 
 
@@ -61,9 +58,11 @@ public class database {
     }
 
     @GET
-    @Path("time/{simulation_id}/{from}/{to}")
+    @Path("simulations/{simulation_id}/vehicles")
     @Produces("application/json")
-    public String timeStep(@PathParam("simulation_id") int id, @PathParam("from") int from, @PathParam("to") int to) {
+    public String timeStep(@PathParam("simulation_id") int id,
+                           @QueryParam("from") int from,
+                           @QueryParam("to") int to) {
 
         try {
             int[] arr = new int[3];
@@ -77,7 +76,7 @@ public class database {
     }
 
 
-    @Path("nodes/{simulation_id}")
+    @Path("simulations/{simulation_id}/nodes")
     @GET
     @Produces("application/json")
     public String nodes(@PathParam("simulation_id") int id) {
@@ -90,7 +89,7 @@ public class database {
         }
     }
 
-    @Path("edges/{simulation_id}")
+    @Path("simulations/{simulation_id}/edges")
     @GET
     @Produces("application/json")
     public String edges(@PathParam("simulation_id") int id) {
@@ -130,26 +129,6 @@ public class database {
             return "{}";
         }
     }
-
-    public String getFromDatabase(String query) throws SQLException {
-        Connection database = connectToDB();
-        ResultSet test;
-        try {
-            test =  database.createStatement().executeQuery(query);
-        } catch (SQLException | NullPointerException e) {
-            System.out.println(e.getMessage());
-            System.out.println("Still not quite there though");
-            return null;
-        }
-
-
-        if (test.next()) {
-            return test.getString(1);
-        } else {
-            return "{}";
-        }
-    };
-
 
     public Connection connectToDB() {
         Connection ret;
