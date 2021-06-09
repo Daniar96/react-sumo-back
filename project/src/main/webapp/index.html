@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<!-- Index page of the Online Book Store. -->
+
+<html lang=”en”>
+<head>
+<title>Online Book Store</title>
+<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+</head>
+
+<body>
+    <h1>Online Book Store</h1>
+	<div id="wrapper">
+		<div id="query">
+			<p>Which book category are you interested in?</p>
+			<div>
+				<input id="search" type="text" onkeyup="loadBooks(event)" />
+				<input id="autocomplete" type="text" disabled="disabled" /> 
+			</div>
+		</div>
+
+		<div id="cart">
+			<p>Shopping cart</p>
+			<p id="costs">Total costs = 0.0 Euros</p>
+			<button onclick="location.href='checkout.html'">Checkout</button>
+		</div>
+	</div>
+
+	<div id="results">
+		<h2>Found items</h2>
+		<div id="items">
+		<p>No items found so far!</p>
+		</div>
+	</div>
+
+
+<script>
+	var text = "";
+	function loadBooks(event) {
+		let search = document.getElementById("search")
+		let result = document.getElementById("items")
+		result.innerHTML = search.value;
+	}
+<!-- Write your JavaScript code here! -->
+
+</script>
+
+
+</body>
+</html>
