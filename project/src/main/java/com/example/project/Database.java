@@ -8,6 +8,7 @@ public class Database {
     static String user = "dab_di20212b_65";
     static String password = "oOeyfYe4wXA3Ipc+";
     static String schema = "?currentSchema=project";
+    static Connection database = connectToDB();
 
     static String getSimulations =
             "SELECT to_jsonb(array_agg(jsonobj.simdata)) " +
@@ -21,11 +22,11 @@ public class Database {
             "                          'name', s.name," +
             "                          'date', s.uploaddate," +
             "                          'description', s.description," +
-            "                          'steps', count(DISTINCT o.timestep))" +
-            "FROM project.simulation s," +
-            "     project.output o" +
-            "WHERE s.simulationid = ?" +
-            "  AND o.simulationid = ?" +
+            "                          'steps', count(DISTINCT o.timestep)) " +
+            "FROM project.simulation s, " +
+            "     project.output o " +
+            "WHERE s.simulationid = ? " +
+            "  AND o.simulationid = ? " +
             "GROUP BY s.simulationid;";
 
     static String getTimeStamp = "SELECT jsonb_agg(ultimateData.line) " +
@@ -128,7 +129,7 @@ public class Database {
 
 
     public String getFromDatabasePrepared(String Query, int[] param) throws SQLException {
-        Connection database = connectToDB();
+        //Connection database = connectToDB();
         ResultSet fin;
         try {
             PreparedStatement pr = database.prepareStatement(Query);
@@ -154,7 +155,7 @@ public class Database {
         }
     }
 
-    public Connection connectToDB() {
+    public static Connection connectToDB() {
         Connection ret;
         try {
             Class.forName("org.postgresql.Driver");
@@ -168,6 +169,7 @@ public class Database {
             System.out.println("You have connected to database!");
             return ret;
         } catch (SQLException e) {
+            System.out.println("Can't connect to db: " + e.getMessage());
             return null;
         }
     }
