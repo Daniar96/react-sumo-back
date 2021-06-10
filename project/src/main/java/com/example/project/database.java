@@ -3,8 +3,7 @@ package com.example.project;
 import javax.ws.rs.*;
 import java.sql.*;
 
-
-@Path("/database")
+@Path("/simulations")
 public class database {
     static String user = "dab_di20212b_65";
     static String password = "oOeyfYe4wXA3Ipc+";
@@ -45,8 +44,6 @@ public class database {
                     "ORDER BY edge_id ) as ultimateData ";
 
 
-
-    @Path("simulations")
     @GET
     @Produces("application/json")
     public String simulations() {
@@ -58,7 +55,7 @@ public class database {
     }
 
     @GET
-    @Path("simulations/{simulation_id}/vehicles")
+    @Path("{simulation_id}/vehicles")
     @Produces("application/json")
     public String timeStep(@PathParam("simulation_id") int id,
                            @QueryParam("from") int from,
@@ -76,7 +73,7 @@ public class database {
     }
 
 
-    @Path("simulations/{simulation_id}/nodes")
+    @Path("{simulation_id}/nodes")
     @GET
     @Produces("application/json")
     public String nodes(@PathParam("simulation_id") int id) {
@@ -89,7 +86,7 @@ public class database {
         }
     }
 
-    @Path("simulations/{simulation_id}/edges")
+    @Path("{simulation_id}/edges")
     @GET
     @Produces("application/json")
     public String edges(@PathParam("simulation_id") int id) {
