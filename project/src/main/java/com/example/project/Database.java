@@ -4,19 +4,19 @@ import javax.ws.rs.*;
 import java.sql.*;
 
 @Path("/simulations")
-public class database {
+public class Database {
     static String user = "dab_di20212b_65";
     static String password = "oOeyfYe4wXA3Ipc+";
     static String schema = "?currentSchema=project";
 
     static String getSimulations =
             "SELECT to_jsonb(array_agg(jsonobj.simdata)) " +
-            "FROM project.simulation s, " +
-            "LATERAL (SELECT json_build_object('id', s.simulationid, 'name', s.name, 'date', s.uploaddate, 'description', " +
-             "s.description, 'steps', count(distinct o.timestep)) simdata from project.output o " +
-            "where o.simulationid = s.simulationid) jsonobj; ";
+                    "FROM project.simulation s, " +
+                    "LATERAL (SELECT json_build_object('id', s.simulationid, 'name', s.name, 'date', s.uploaddate, 'description', " +
+                    "s.description, 'steps', count(distinct o.timestep)) simdata from project.output o " +
+                    "where o.simulationid = s.simulationid) jsonobj; ";
 
-    static String getTimeStemp = "SELECT jsonb_agg(ultimateData.line) " +
+    static String getTimeStamp = "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('timestamp', timestep, 'vehicles', array_agg(car.data)) as line " +
             "FROM project.output out, " +
@@ -34,14 +34,14 @@ public class database {
                     "FROM project.node, " +
                     "LATERAL ( SELECT jsonb_build_object('id', node_id, 'lon', x, 'lat', y) AS data) nodes " +
                     "WHERE simulationid = ? ";
-    static String getAlledges ="" +
+    static String getAllEdges = "" +
             "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('id', edge_id, 'start', start, 'finish', finish, " +
-                    "'geometry', string_to_array(shape, ' ')) as line " +
-                    "FROM project.edges " +
-                    "WHERE simulationid = ? " +
-                    "ORDER BY edge_id ) as ultimateData ";
+            "'geometry', string_to_array(shape, ' ')) as line " +
+            "FROM project.edges " +
+            "WHERE simulationid = ? " +
+            "ORDER BY edge_id ) as ultimateData ";
 
 
     @GET
@@ -66,7 +66,7 @@ public class database {
             arr[0] = id;
             arr[1] = from;
             arr[2] = to;
-            return getFromDatabasePrepared(getTimeStemp, arr);
+            return getFromDatabasePrepared(getTimeStamp, arr);
         } catch (SQLException e) {
             return "{}";
         }
@@ -93,7 +93,7 @@ public class database {
         int[] arr = new int[1];
         arr[0] = id;
         try {
-            return getFromDatabasePrepared(getAlledges, arr);
+            return getFromDatabasePrepared(getAllEdges, arr);
         } catch (SQLException e) {
             return "{}";
         }
@@ -107,7 +107,7 @@ public class database {
             PreparedStatement pr = database.prepareStatement(Query);
             for (int i = 0; i < param.length; i++) {
                 System.out.println(param[i]);
-                pr.setInt(i+1, param[i]);
+                pr.setInt(i + 1, param[i]);
             }
             fin = pr.executeQuery();
 
@@ -120,7 +120,7 @@ public class database {
             return null;
         }
 
-        if(fin.next()) {
+        if (fin.next()) {
             return fin.getString(1);
         } else {
             return "{}";
@@ -144,5 +144,4 @@ public class database {
             return null;
         }
     }
-
 }
