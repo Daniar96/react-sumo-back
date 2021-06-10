@@ -16,6 +16,18 @@ public class Database {
                     "s.description, 'steps', count(distinct o.timestep)) simdata from project.output o " +
                     "where o.simulationid = s.simulationid) jsonobj; ";
 
+    static String getSimulationById =
+            "SELECT jsonb_build_object('id', s.simulationid," +
+            "                          'name', s.name," +
+            "                          'date', s.uploaddate," +
+            "                          'description', s.description," +
+            "                          'steps', count(DISTINCT o.timestep))" +
+            "FROM project.simulation s," +
+            "     project.output o" +
+            "WHERE s.simulationid = ?" +
+            "  AND o.simulationid = ?" +
+            "GROUP BY s.simulationid;";
+
     static String getTimeStamp = "SELECT jsonb_agg(ultimateData.line) " +
             "FROM ( " +
             "SELECT json_build_object('timestamp', timestep, 'vehicles', array_agg(car.data)) as line " +
@@ -55,6 +67,20 @@ public class Database {
     }
 
     @GET
+    @Path("{simulation_id}/metadata")
+    @Produces("application/json")
+    public String simulation(@PathParam("simulation_id") int id) {
+        try {
+            int[] arr = new int[2];
+            arr[0] = id;
+            arr[1] = id;
+            return getFromDatabasePrepared(getSimulationById, arr);
+        } catch (SQLException ignore) {
+            return "{}";
+        }
+    }
+
+    @GET
     @Path("{simulation_id}/vehicles")
     @Produces("application/json")
     public String timeStep(@PathParam("simulation_id") int id,
@@ -66,6 +92,7 @@ public class Database {
             arr[0] = id;
             arr[1] = from;
             arr[2] = to;
+
             return getFromDatabasePrepared(getTimeStamp, arr);
         } catch (SQLException e) {
             return "{}";
