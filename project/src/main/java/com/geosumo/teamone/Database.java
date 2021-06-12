@@ -61,7 +61,7 @@ public class Database {
     @Produces("application/json")
     public String simulations() {
         try {
-            return getFromDatabasePrepared(getSimulations, new int[0]);
+            return getFromDatabasePrepared(getSimulations);
         } catch (SQLException e) {
             return "{}";
         }
@@ -72,10 +72,7 @@ public class Database {
     @Produces("application/json")
     public String simulation(@PathParam("simulation_id") int id) {
         try {
-            int[] arr = new int[2];
-            arr[0] = id;
-            arr[1] = id;
-            return getFromDatabasePrepared(getSimulationById, arr);
+            return getFromDatabasePrepared(getSimulationById, id, id);
         } catch (SQLException ignore) {
             return "{}";
         }
@@ -89,12 +86,7 @@ public class Database {
                            @QueryParam("to") int to) {
 
         try {
-            int[] arr = new int[3];
-            arr[0] = id;
-            arr[1] = from;
-            arr[2] = to;
-
-            return getFromDatabasePrepared(getTimeStamp, arr);
+            return getFromDatabasePrepared(getTimeStamp, id, from, to);
         } catch (SQLException e) {
             return "{}";
         }
@@ -105,10 +97,8 @@ public class Database {
     @GET
     @Produces("application/json")
     public String nodes(@PathParam("simulation_id") int id) {
-        int[] arr = new int[1];
-        arr[0] = id;
         try {
-            return getFromDatabasePrepared(getAllNodes, arr);
+            return getFromDatabasePrepared(getAllNodes, id);
         } catch (SQLException e) {
             return "{}";
         }
@@ -118,17 +108,15 @@ public class Database {
     @GET
     @Produces("application/json")
     public String edges(@PathParam("simulation_id") int id) {
-        int[] arr = new int[1];
-        arr[0] = id;
         try {
-            return getFromDatabasePrepared(getAllEdges, arr);
+            return getFromDatabasePrepared(getAllEdges, id);
         } catch (SQLException e) {
             return "{}";
         }
     }
 
 
-    public String getFromDatabasePrepared(String Query, int[] param) throws SQLException {
+    public String getFromDatabasePrepared(String Query, int... param) throws SQLException {
         //Connection database = connectToDB();
         ResultSet fin;
         try {
