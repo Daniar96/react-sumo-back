@@ -1,6 +1,7 @@
 package com.geosumo.teamone;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.sql.*;
 
 @Path("/simulations")
@@ -58,7 +59,7 @@ public class Database {
 
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public String simulations() {
         try {
             return getFromDatabasePrepared(getSimulations);
@@ -69,7 +70,7 @@ public class Database {
 
     @GET
     @Path("{simulation_id}/metadata")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public String simulation(@PathParam("simulation_id") int id) {
         try {
             return getFromDatabasePrepared(getSimulationById, id, id);
@@ -80,7 +81,7 @@ public class Database {
 
     @GET
     @Path("{simulation_id}/vehicles")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public String timeStep(@PathParam("simulation_id") int id,
                            @QueryParam("from") int from,
                            @QueryParam("to") int to) {
@@ -95,7 +96,7 @@ public class Database {
 
     @Path("{simulation_id}/nodes")
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public String nodes(@PathParam("simulation_id") int id) {
         try {
             return getFromDatabasePrepared(getAllNodes, id);
@@ -106,7 +107,7 @@ public class Database {
 
     @Path("{simulation_id}/edges")
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public String edges(@PathParam("simulation_id") int id) {
         try {
             return getFromDatabasePrepared(getAllEdges, id);
