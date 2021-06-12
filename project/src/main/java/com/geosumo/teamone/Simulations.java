@@ -5,7 +5,7 @@ import javax.ws.rs.core.MediaType;
 import java.sql.*;
 
 @Path("/simulations")
-public class Database {
+public class Simulations {
     static String user = "dab_di20212b_65";
     static String password = "oOeyfYe4wXA3Ipc+";
     static String schema = "?currentSchema=project";
