@@ -1,6 +1,7 @@
 package com.example.project;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.sql.*;
 
 @Path("/simulations")
@@ -29,18 +30,14 @@ public class Database {
             "  AND o.simulationid = ? " +
             "GROUP BY s.simulationid;";
 
-    static String getTimeStamp = "SELECT jsonb_agg(ultimateData.line) " +
-            "FROM ( " +
-            "SELECT json_build_object('timestamp', timestep, 'vehicles', array_agg(car.data)) as line " +
-            "FROM project.output out, " +
-            "LATERAL ( SELECT json_build_object('id', vehicle_id, 'x', x, 'y', y, 'angle', angle, 'type', " +
-            "type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope) AS data " +
-            "FROM project.output " +
-            "WHERE out.timestep = timestep) car " +
-            "WHERE simulationid = ? " +
-            "AND timestep >= ? " +
-            "AND timestep <= ? " +
-            "GROUP BY timestep ) as ultimateData ";
+    static String getTimeStamp = "SELECT jsonb_agg(data) \n" +
+            "FROM (\n" +
+            "SELECT timestep, jsonb_agg(json_build_object('id', vehicle_id, 'x', x, 'y', y, 'angle', angle, 'type', type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope)) as vehicles\n" +
+            "FROM project.output out\n" +
+            "WHERE simulationid = ?\n" +
+            "AND timestep >= ?\n" +
+            "AND timestep <= ?\n" +
+            "GROUP BY timestep ) as data";
 
     static String getAllNodes =
             "SELECT to_jsonb(array_agg(nodes.data)) " +
@@ -56,6 +53,33 @@ public class Database {
             "WHERE simulationid = ? " +
             "ORDER BY edge_id ) as ultimateData ";
 
+
+
+    static String vehiclePerTimeStep =
+            "SELECT jsonb_agg(data) " +
+            "FROM ( SELECT timestep, count(*) as vehicles " +
+                    "FROM project.output out " +
+                    "WHERE simulationid = ? " +
+                    "GROUP by timestep) as data";
+
+
+    static String speedPerTimeStep =
+            "SELECT jsonb_agg(data)\n" +
+                    "FROM (\n" +
+                    "SELECT timestep, AVG(speed) as averagespeed\n" +
+                    "FROM project.output out\n" +
+                    "WHERE simulationid = ?\n" +
+                    "GROUP BY timestep) as data";
+
+
+    static String slowestVehiclePerTimeStep =
+            "SELECT jsonb_agg(data)\n" +
+            "FROM ( SELECT vehicle_id AS ID, speed\n" +
+            "FROM project.output out\n" +
+            "WHERE simulationid = ?\n" +
+            "AND timestep = ?\n" +
+            "ORDER BY speed\n" +
+            "LIMIT 10 ) AS data";
 
     @GET
     @Produces("application/json")
@@ -126,6 +150,22 @@ public class Database {
             return "{}";
         }
     }
+
+    @Path("{simulation_id}/graphs/static")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String staticc(@PathParam("simulation_id") int id){
+        int[] arr = new int[1];
+        arr[0] = id;
+        try {
+            return "{ count: " + getFromDatabasePrepared(vehiclePerTimeStep, arr)+ "," +
+                    " speed: " + getFromDatabasePrepared(speedPerTimeStep, arr) + "}";
+        } catch (SQLException e) {
+            return "{}";
+        }
+    }
+
+
 
 
     public String getFromDatabasePrepared(String Query, int[] param) throws SQLException {
