@@ -98,6 +98,7 @@ public class DataCreationQueries {
             "    x          NUMERIC                                             NOT NULL, " +
             "    y          NUMERIC                                             NOT NULL, " +
             "    angle      NUMERIC                                             NOT NULL, " +
+            "    type       TEXT                                                NOT NULL, " +
             "    speed      NUMERIC                                             NOT NULL, " +
             "    pos        NUMERIC                                             NOT NULL, " +
             "    slope      NUMERIC                                             NOT NULL, " +

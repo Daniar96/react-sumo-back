@@ -28,9 +28,9 @@ public class DataInsertionQueries {
             "              ) AS xml " +
             "        WHERE files.id = ?);";
 
-    public static final String INSERT_OUTPUT = "INSERT INTO output (sim_id, time_step, vehicle_id, x, y, angle, speed, pos, slope, lane) " +
+    public static final String INSERT_OUTPUT = "INSERT INTO output (sim_id, time_step, vehicle_id, x, y, angle, type, speed, pos, slope, lane) " +
             "    (SELECT ?, " +
-            "            xml.time, xml.vehicle_id, xml.x, xml.y, xml.angle, xml.speed, xml.pos, xml.slope, xml.lane " +
+            "            xml.time, xml.vehicle_id, xml.x, xml.y, xml.angle, xml.col_type, xml.speed, xml.pos, xml.slope, xml.lane " +
             "     FROM files, " +
             "          xmltable('/fcd-export/timestep/vehicle' PASSING xmlparse(DOCUMENT output) COLUMNS " +
             "              time NUMERIC PATH './../@time' NOT NULL, " +
@@ -39,6 +39,7 @@ public class DataInsertionQueries {
             "              x NUMERIC PATH './@x' NOT NULL, " +
             "              y NUMERIC PATH './@y' NOT NULL, " +
             "              angle NUMERIC PATH './@angle' NOT NULL, " +
+            "              col_type TEXT PATH './@type' NOT NULL," +
             "              speed NUMERIC PATH './@speed' NOT NULL, " +
             "              pos NUMERIC PATH './@pos' NOT NULL, " +
             "              lane TEXT PATH './@lane' NOT NULL, " +

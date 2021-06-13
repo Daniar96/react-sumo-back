@@ -238,4 +238,8 @@ public class Helpers {
             reset.executeUpdate();
         }
     }
+
+    public static void main(String[] args) throws SQLException {
+        processData("hello", "world", 2);
+    }
 }

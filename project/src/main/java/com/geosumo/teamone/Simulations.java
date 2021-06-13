@@ -13,7 +13,7 @@ public class Simulations {
     @Produces(MediaType.APPLICATION_JSON)
     public String simulations() {
         try {
-            return getFromDatabasePrepared(getSimulations);
+            return getFromDatabasePrepared(GET_SIMULATIONS);
         } catch (SQLException e) {
             return "{}";
         }
@@ -24,7 +24,7 @@ public class Simulations {
     @Produces(MediaType.APPLICATION_JSON)
     public String simulation(@PathParam("simulation_id") int id) {
         try {
-            return getFromDatabasePrepared(getSimulationById, id, id);
+            return getFromDatabasePrepared(GET_SIMULATION_BY_ID, id, id);
         } catch (SQLException ignore) {
             return "{}";
         }
@@ -38,7 +38,7 @@ public class Simulations {
                            @QueryParam("to") int to) {
 
         try {
-            return getFromDatabasePrepared(getTimeStamp, id, from, to);
+            return getFromDatabasePrepared(GET_TIME_STAMP, id, from, to);
         } catch (SQLException e) {
             return "{}";
         }
@@ -49,7 +49,7 @@ public class Simulations {
     @Produces(MediaType.APPLICATION_JSON)
     public String nodes(@PathParam("simulation_id") int id) {
         try {
-            return getFromDatabasePrepared(getAllNodes, id);
+            return getFromDatabasePrepared(GET_ALL_NODES, id);
         } catch (SQLException e) {
             return "{}";
         }
@@ -65,4 +65,17 @@ public class Simulations {
             return "{}";
         }
     }
+
+    @Path("{simulation_id}/graphs/static")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String staticGraphs(@PathParam("simulation_id") int id){
+        try {
+            return "{ count: " + getFromDatabasePrepared(VEHICLE_PER_TIME_STEP, id)+ "," +
+                    " speed: " + getFromDatabasePrepared(SPEED_PER_TIME_STEP, id) + "}";
+        } catch (SQLException e) {
+            return "{}";
+        }
+    }
+
 }
