@@ -21,18 +21,14 @@ public class DataAggregationQueries {
                     "  AND o.sim_id = ? " +
                     "GROUP BY s.id;";
 
-    public static final String GET_TIME_STAMP = "SELECT jsonb_agg(ultimateData.line) " +
-            "FROM ( " +
-            "         SELECT json_build_object('timestamp', time_step, 'vehicles', array_agg(car.data)) AS line " +
-            "         FROM output out, " +
-            "              LATERAL ( SELECT json_build_object('id', vehicle_id, 'x', x, 'y', y, 'angle', angle, 'type', " +
-            "                                                 type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope) AS data " +
-            "                        FROM output " +
-            "                        WHERE out.time_step = time_step) car " +
-            "         WHERE sim_id = ? " +
-            "           AND out.time_step >= ? " +
-            "           AND out.time_step <= ? " +
-            "         GROUP BY time_step) AS ultimateData;";
+    public static final String GET_TIME_STAMP = "SELECT jsonb_agg(data) \n" +
+            "FROM (\n" +
+            "SELECT time_step, jsonb_agg(json_build_object('id', vehicle_id, 'x', x, 'y', y, 'angle', angle, 'type', type, 'spd', speed, 'pos', pos, 'lane', lane, 'slope', slope)) as vehicles\n" +
+            "FROM geo_sumo.output out\n" +
+            "WHERE out.sim_id = ?\n" +
+            "AND out.time_step >= ?\n" +
+            "AND out.time_step <= ?\n" +
+            "GROUP BY time_step ) as data";
 
     public static final String GET_ALL_NODES =
             "SELECT to_jsonb(array_agg(nodes.data)) " +
