@@ -46,6 +46,7 @@ public class DataAggregationQueries {
                     "         WHERE e.sim_id = ? AND e.start = nst.node_id AND e.finish = nfin.node_id" +
                     "         ORDER BY e.edge_id) AS ultimateData;";
 
+
     public static final String VEHICLE_PER_TIME_STEP = "SELECT jsonb_agg(data) " +
             "            FROM ( SELECT time_step, count(*) AS vehicles " +
             "                    FROM output " +

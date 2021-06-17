@@ -78,4 +78,13 @@ public class Simulations {
         }
     }
 
+
+
+    @Path("{simulation_id}/metaData")
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    public void ChangeMetaData(String input){
+        System.out.println(input);
+    }
+
 }

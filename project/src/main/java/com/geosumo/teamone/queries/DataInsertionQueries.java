@@ -62,7 +62,7 @@ public class DataInsertionQueries {
             "WHERE files.id = %d; " +
             " " +
             "INSERT INTO node (sim_id, node_id, x, y, type) " +
-            "        (SELECT ?, nv.id, nv.y, nv.y, nv.type FROM node_view nv); " +
+            "        (SELECT ?, nv.id, nv.x, nv.y, nv.type FROM node_view nv); " +
             " " +
             "INSERT INTO node_tl (sim_id, node_id, tl_id) " +
             "    (SELECT ?, nv.id, nv.tl " +
