@@ -39,11 +39,12 @@ public class DataAggregationQueries {
     public static final String getAllEdges =
             "SELECT jsonb_agg(ultimateData.line) " +
                     "FROM ( " +
-                    "         SELECT json_build_object('id', edge_id, 'start', start, 'finish', finish, " +
-                    "                                  'geometry', string_to_array(shape, ' ')) AS line " +
-                    "         FROM edge " +
-                    "         WHERE sim_id = ? " +
-                    "         ORDER BY edge_id) AS ultimateData;";
+                    "         SELECT json_build_object('id', e.edge_id, 'start', e.start, 'finish', e.finish, " +
+                    "                                  'geometry', COALESCE(string_to_array(e.shape, ' '), "+
+                    " string_to_array(CONCAT(CONCAT(nst.x,',',nst.y), ' ', CONCAT(nfin.x,',',nfin.y)),' '))) AS line " +
+                    "         FROM node nst, edge e, node nfin" +
+                    "         WHERE e.sim_id = ? AND e.start = nst.node_id AND e.finish = nfin.node_id" +
+                    "         ORDER BY e.edge_id) AS ultimateData;";
 
     public static final String VEHICLE_PER_TIME_STEP = "SELECT jsonb_agg(data) " +
             "            FROM ( SELECT time_step, count(*) AS vehicles " +
