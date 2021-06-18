@@ -67,4 +67,18 @@ public class DataAggregationQueries {
             "            AND time_step = ? " +
             "            ORDER BY speed " +
             "            LIMIT 10 ) AS data;";
+
+    public static final String BUSIEST_ROADS_PER_TIME_STEP =
+            "SELECT jsonb_agg(data)\n" +
+                    "FROM (\n" +
+                    "SELECT edge_id, count(*) AS count\n" +
+                    "FROM output\n" +
+                    "INNER JOIN edge\n" +
+                    "ON output.lane LIKE CONCAT(edge.edge_id, '$_%') ESCAPE '$'\n" +
+                    "WHERE output.sim_id = ?\n" +
+                    "AND output.time_step = ?\n" +
+                    "GROUP by edge.edge_id \n" +
+                    "ORDER by count DESC\n" +
+                    "LIMIT 10) as data";
+
 }

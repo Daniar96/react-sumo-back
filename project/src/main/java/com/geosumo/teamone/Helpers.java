@@ -46,7 +46,6 @@ public class Helpers {
 
             PreparedStatement pr = connection.prepareStatement(query);
             for (int i = 0; i < param.length; i++) {
-                System.out.println(param[i]);
                 pr.setInt(i + 1, param[i]);
             }
 

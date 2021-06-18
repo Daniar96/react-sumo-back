@@ -2,6 +2,7 @@ package com.geosumo.teamone;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.sql.*;
 
 import static com.geosumo.teamone.Helpers.*;
@@ -71,8 +72,22 @@ public class Simulations {
     @Produces(MediaType.APPLICATION_JSON)
     public String staticGraphs(@PathParam("simulation_id") int id){
         try {
-            return "{ count: " + getFromDatabasePrepared(VEHICLE_PER_TIME_STEP, id)+ "," +
-                    " speed: " + getFromDatabasePrepared(SPEED_PER_TIME_STEP, id) + "}";
+            return "{   count: " + getFromDatabasePrepared(VEHICLE_PER_TIME_STEP, id)+ ",\n" +
+                   "    speed: " + getFromDatabasePrepared(SPEED_PER_TIME_STEP, id) + "}";
+        } catch (SQLException e) {
+            return "{}";
+        }
+    }
+
+    @Path("{simulation_id}/graphs/dynamic")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String dynamicGraphs(@PathParam("simulation_id") int id,
+                                @QueryParam("timestep") int timestep) {
+
+        try {
+            return  "{   slowest : " + getFromDatabasePrepared(SLOWEST_VEHICLE_PER_TIME_STEP, id, timestep) + ",\n" +
+                    "    busiest : " + getFromDatabasePrepared(BUSIEST_ROADS_PER_TIME_STEP, id, timestep) + "}";
         } catch (SQLException e) {
             return "{}";
         }
@@ -80,10 +95,10 @@ public class Simulations {
 
 
 
-    @Path("{simulation_id}/metaData")
+    @Path("{simulation_id}/metadata")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    public void ChangeMetaData(String input){
+    public void ChangeMetaData(String input) {
         System.out.println(input);
     }
 
