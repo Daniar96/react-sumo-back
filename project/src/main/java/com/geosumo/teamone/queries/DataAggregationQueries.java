@@ -51,14 +51,16 @@ public class DataAggregationQueries {
             "            FROM ( SELECT time_step, count(*) AS vehicles " +
             "                    FROM output " +
             "                    WHERE sim_id = ? " +
-            "                    GROUP BY time_step) AS data;";
+            "                    GROUP BY time_step" +
+            "                    ORDER BY time_step) AS data;";
 
     public static final String SPEED_PER_TIME_STEP = "SELECT jsonb_agg(data) " +
             "                    FROM ( " +
             "                    SELECT time_step, AVG(speed) as averagespeed " +
             "                    FROM output " +
             "                    WHERE sim_id = ? " +
-            "                    GROUP BY time_step) as data;";
+            "                    GROUP BY time_step" +
+            "                    ORDER BY time_step) as data;";
 
     public static final String SLOWEST_VEHICLE_PER_TIME_STEP = "SELECT jsonb_agg(data) " +
             "            FROM ( SELECT vehicle_id AS ID, speed " +
