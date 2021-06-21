@@ -70,10 +70,10 @@ public class Simulations {
     @Path("{simulation_id}/graphs/static")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String staticGraphs(@PathParam("simulation_id") int id){
+    public String staticGraphs(@PathParam("simulation_id") int id) {
         try {
-            return "{   count: " + getFromDatabasePrepared(VEHICLE_PER_TIME_STEP, id)+ ",\n" +
-                   "    speed: " + getFromDatabasePrepared(SPEED_PER_TIME_STEP, id) + "}";
+            return "{   \"count\": " + getFromDatabasePrepared(VEHICLE_PER_TIME_STEP, id)+ ",\n" +
+                   "    \"speed\": " + getFromDatabasePrepared(SPEED_PER_TIME_STEP, id) + "}";
         } catch (SQLException e) {
             return "{}";
         }
@@ -86,8 +86,8 @@ public class Simulations {
                                 @QueryParam("timestep") int timestep) {
 
         try {
-            return  "{   slowest : " + getFromDatabasePrepared(SLOWEST_VEHICLE_PER_TIME_STEP, id, timestep) + ",\n" +
-                    "    busiest : " + getFromDatabasePrepared(BUSIEST_ROADS_PER_TIME_STEP, id, timestep) + "}";
+            return "{   \"slowest\": " + getFromDatabasePrepared(SLOWEST_VEHICLE_PER_TIME_STEP, id, timestep) + ",\n" +
+                   "    \"busiest\": " + getFromDatabasePrepared(BUSIEST_ROADS_PER_TIME_STEP, id, timestep) + "}";
         } catch (SQLException e) {
             return "{}";
         }
